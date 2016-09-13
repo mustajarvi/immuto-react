@@ -1,0 +1,30 @@
+{
+  "name": "immuto-react",
+  "version": "0.9.5",
+  "description": "React bindings for Immuto",
+  "main": "built/index.js",
+  "typings": "built/index.d.ts",
+  "scripts": {
+    "test": "jasmine",
+    "prepublish": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielearwicker/immuto-react.git"
+  },
+  "keywords": [
+    "redux",
+    "react",
+    "typescript"
+    "immuto"
+  ],
+  "author": "Daniel Earwicker <dan@earwicker.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danielearwicker/immuto-react/issues"
+  },
+  "homepage": "https://github.com/danielearwicker/immuto-react#readme",
+  "dependencies": {
+    "immuto": "^0.9.4"
+  }
+}
