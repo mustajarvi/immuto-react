@@ -15,7 +15,7 @@
   "keywords": [
     "redux",
     "react",
-    "typescript"
+    "typescript",
     "immuto"
   ],
   "author": "Daniel Earwicker <dan@earwicker.com>",
