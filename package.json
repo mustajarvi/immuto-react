@@ -1,6 +1,6 @@
 {
   "name": "immuto-react",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "React bindings for Immuto",
   "main": "built/index.js",
   "typings": "built/index.d.ts",
@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/danielearwicker/immuto-react#readme",
   "dependencies": {
-    "immuto": "^0.9.4"
+    "immuto": "^0.9.11"
   }
 }
