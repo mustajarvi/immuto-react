@@ -1,6 +1,6 @@
 {
   "name": "immuto-react",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "description": "React bindings for Immuto",
   "main": "built/index.js",
   "typings": "built/index.d.ts",

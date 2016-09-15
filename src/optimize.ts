@@ -32,10 +32,10 @@ export function optimize<Props>(
         shouldComponentUpdate(newProps: Props) {
             const oldProps = this.props;
 
-            return Object.keys(newProps).every(oldKey =>
+            return !(Object.keys(newProps).every(oldKey =>
                     Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
                 Object.keys(newProps).every(key =>
-                    getValue(newProps, key) === getValue(oldProps, key));
+                    getValue(newProps, key) === getValue(oldProps, key)));
         }
 
         render() {
