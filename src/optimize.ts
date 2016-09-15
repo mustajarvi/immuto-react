@@ -14,18 +14,35 @@ import * as React from "react";
  * by any immuto object with a state property (valueOf returns
  * the state.)
  *
+ * Sometimes functions are passed in as props and if they are
+ * regenerated this does not imply a change in any value that
+ * affects rendering. Hence they should be ignored by the
+ * comparison. To cause this, list their prop names in the
+ * optional ignore parameter.
+ *
  * Aside from this, the comparison is shallow. This will only cause
  * repaint bugs if prop values are not immutable.
  */
 
 function getValue(props: any, key: string) {
     const val = props[key];
+    if (val === undefined || val === null) {
+        return;
+    }
     return val === undefined || val === null ? val : val.valueOf();
 }
 
 export function optimize<Props>(
-    statelessComponent: (props: Props) => JSX.Element
+    statelessComponent: (props: Props) => JSX.Element,
+    ignore?: string[]
 ): React.ComponentClass<Props> {
+
+    const ignoreSet: { [key: string]: boolean } = {};
+    if (ignore) {
+        for (const str of ignore) {
+            ignoreSet[str] = true;
+        }
+    }
 
     return class extends React.Component<Props, {}> {
 
@@ -33,9 +50,9 @@ export function optimize<Props>(
             const oldProps = this.props;
 
             return !(Object.keys(newProps).every(oldKey =>
-                    Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
+                    ignoreSet[oldKey] || Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
                 Object.keys(newProps).every(key =>
-                    getValue(newProps, key) === getValue(oldProps, key)));
+                    ignoreSet[key] || getValue(newProps, key) === getValue(oldProps, key)));
         }
 
         render() {
