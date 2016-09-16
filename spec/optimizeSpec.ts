@@ -84,5 +84,3 @@ function propagateToGlobal(doc: DocumentWithParentWindow) {
         proc[key] = win[key];
     }
 }
-
-
