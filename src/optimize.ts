@@ -24,14 +24,6 @@ import * as React from "react";
  * repaint bugs if prop values are not immutable.
  */
 
-function getValue(props: any, key: string) {
-    const val = props[key];
-    if (val === undefined || val === null) {
-        return;
-    }
-    return val === undefined || val === null ? val : val.valueOf();
-}
-
 export function optimize<Props>(
     statelessComponent: (props: Props) => JSX.Element,
     ignore?: string[]
@@ -46,13 +38,15 @@ export function optimize<Props>(
 
     return class extends React.Component<Props, {}> {
 
-        shouldComponentUpdate(newProps: Props) {
-            const oldProps = this.props;
+        shouldComponentUpdate(newProps: any) {
+            const oldProps = this.props as any;
 
             return !(Object.keys(newProps).every(oldKey =>
                     ignoreSet[oldKey] || Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
                 Object.keys(newProps).every(key =>
-                    ignoreSet[key] || getValue(newProps, key) === getValue(oldProps, key)));
+                    ignoreSet[key] ||
+                    // IMPORTANT: Note the use of == instead of ===
+                    newProps[key] == oldProps[key]));
         }
 
         render() {
