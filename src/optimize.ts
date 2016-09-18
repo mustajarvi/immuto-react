@@ -24,6 +24,11 @@ import * as React from "react";
  * repaint bugs if prop values are not immutable.
  */
 
+function valueOf(value: any) {
+    return value === undefined || value === null
+        ? value : value.valueOf();
+}
+
 export function optimize<Props>(
     statelessComponent: (props: Props) => JSX.Element,
     ignore?: string[]
@@ -41,12 +46,10 @@ export function optimize<Props>(
         shouldComponentUpdate(newProps: any) {
             const oldProps = this.props as any;
 
-            return !(Object.keys(newProps).every(oldKey =>
-                    ignoreSet[oldKey] || Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
-                Object.keys(newProps).every(key =>
-                    ignoreSet[key] ||
-                    // IMPORTANT: Note the use of == instead of ===
-                    newProps[key] == oldProps[key]));
+            return !(Object.keys(newProps).every(oldKey => ignoreSet[oldKey] ||
+                    Object.prototype.hasOwnProperty.call(newProps, oldKey)) &&
+                Object.keys(newProps).every(key => ignoreSet[key] ||
+                    valueOf(newProps[key]) === valueOf(oldProps[key])));
         }
 
         render() {
