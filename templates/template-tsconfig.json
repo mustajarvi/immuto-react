@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "built",
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "jsx": "react",      
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true        
+    },
+    "exclude": [
+        "node_modules",
+        "built"
+    ]
+}
+
