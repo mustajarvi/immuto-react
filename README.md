@@ -1,4 +1,7 @@
 # immuto-react
 React bindings for Immuto
 
-Docs comming soon...
+## Related
+* [immuto](https://github.com/danielearwicker/immuto/) (main repo)
+* [immuto-example](https://github.com/danielearwicker/immuto-example/) (with live demo!)
+ 
