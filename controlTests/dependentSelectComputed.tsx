@@ -19,12 +19,17 @@ export interface DependentSelectComputed {
 
 export namespace DependentSelectComputed {
 
-    export const names = reference("NAMES", Names.reduce, 
+    export const names = reference("NAMES", Names, 
         (s: DependentSelectComputed) => s.names);
 
     export const selectedIndex = property("SELECTED_INDEX", 
         (s: DependentSelectComputed) => s.selectedIndex);
-    
+
+/**
+ * An example of a "virtual" or "computed" property. It's really
+ * just another way of setting selectedIndex. Compare with
+ * DependentSelectedReal, which does it the hard way.
+ */    
     export const selectedName = property("COMPUTED_NAME", 
         (s: DependentSelectComputed) => s.names[s.selectedIndex] || "",
         (s, selectedName) => {

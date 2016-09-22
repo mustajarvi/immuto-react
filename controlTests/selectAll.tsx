@@ -20,7 +20,7 @@ export type Selectables = Selectable[];
 
 export namespace Selectables {
     export const empty: Selectables = [];
-    export const at = array(Selectable.reduce);
+    export const at = array(Selectable);
     export const reduce = reducer(empty).action(at);
 }
 
@@ -39,7 +39,7 @@ export interface SelectAll {
 
 export namespace SelectAll {
 
-    export const selectables = reference("SELECTABLES", Selectables.reduce, 
+    export const selectables = reference("SELECTABLES", Selectables, 
         (s: SelectAll) => s.selectables);
 
     export const all = property("ALL", 
