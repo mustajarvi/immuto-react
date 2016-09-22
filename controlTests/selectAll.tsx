@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { CheckBox } from "../index";
 import * as I from "immuto";
-import { amend, property, reducer, collection, primitive, arrayOperations, replace } from "immuto";
+import { amend, property, reducer, reference, primitive, array, replace } from "immuto";
 
 export interface Selectable {
     label: string;
@@ -16,6 +16,14 @@ export namespace Selectable {
     export type Cursor = typeof reduce.cursorType;
 }
 
+export type Selectables = Selectable[];
+
+export namespace Selectables {
+    export const empty: Selectables = [];
+    export const at = array(Selectable.reduce);
+    export const reduce = reducer(empty).action(at);
+}
+
 export function SelectableEditor({ binding }: { binding: Selectable.Cursor }) {
     
     return (
@@ -25,15 +33,14 @@ export function SelectableEditor({ binding }: { binding: Selectable.Cursor }) {
     );
 }
 
-
 export interface SelectAll {
     selectables: Selectable[];
 }
 
 export namespace SelectAll {
 
-    export const selectables = collection("SELECTABLES", Selectable.reduce, 
-        arrayOperations<Selectable>(), (s: SelectAll) => s.selectables);
+    export const selectables = reference("SELECTABLES", Selectables.reduce, 
+        (s: SelectAll) => s.selectables);
 
     export const all = property("ALL", 
         (s: SelectAll) => {
@@ -43,6 +50,7 @@ export namespace SelectAll {
                 undefined;
         },
         (s: SelectAll, v: boolean) => ({
+
             selectables: s.selectables.map(i => 
                 Selectable.reduce(i, Selectable.selected.update(replace(v))))
         })
@@ -65,16 +73,16 @@ export namespace SelectAll {
     export type Cursor = typeof reduce.cursorType;
 }
 
-export function SelectAllEditor({ binding }: { binding: SelectAll.Cursor }) {
+export function SelectAllEditor({ binding: model }: { binding: SelectAll.Cursor }) {
     
     return (
         <div>
-            <div><label><CheckBox binding={SelectAll.all(binding)} /> Select all</label></div>
+            <div><label><CheckBox binding={model.$(SelectAll.all)} /> Select all</label></div>
             <hr/>
             {
-                binding.state.selectables.map((s, i) => (
+                model.state.selectables.map((s, i) => (
                     <div key={s.label}>
-                        <SelectableEditor binding={SelectAll.selectables(binding, i)}/> 
+                        <SelectableEditor binding={model.$(SelectAll.selectables).$(Selectables.at(i))}/> 
                     </div>
                 ))
             }

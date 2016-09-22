@@ -2,16 +2,24 @@ import * as React from "react";
 
 import { TextInput, SelectNumber, SelectString, RadioButtonString } from "../index";
 import * as I from "immuto";
-import { amend, property, reducer, collection, primitive, arrayOperations } from "immuto";
+import { amend, property, reducer, reference, primitive, array } from "immuto";
+
+export type Names = string[];
+
+export namespace Names {
+    export const empty: Names = [];
+    export const at = array(primitive<string>());
+    export const reduce = reducer(empty).action(at);
+}
 
 export interface DependentSelectComputed {
-    names: string[];
+    names: Names;
     selectedIndex: number;
 }
 
 export namespace DependentSelectComputed {
 
-    export const names = collection("NAMES", primitive<string>(), arrayOperations<string>(), 
+    export const names = reference("NAMES", Names.reduce, 
         (s: DependentSelectComputed) => s.names);
 
     export const selectedIndex = property("SELECTED_INDEX", 
@@ -50,15 +58,16 @@ export function DependentSelectComputedEditor({ binding }: { binding: DependentS
             <table><tbody>
                 <tr>
                     <td>Select by index</td>
-                    <td><SelectNumber binding={DependentSelectComputed.selectedIndex(binding)} options={numbers} /></td>
+                    <td><SelectNumber binding={binding.$(DependentSelectComputed.selectedIndex)} options={numbers} /></td>
                 </tr>
                 <tr>
                     <td>Select by name</td>
-                    <td><SelectString binding={DependentSelectComputed.selectedName(binding)} options={binding.state.names} /></td>
+                    <td><SelectString binding={binding.$(DependentSelectComputed.selectedName)} options={binding.state.names} /></td>
                 </tr>
                 <tr>
                     <td>Edit name</td>
-                    <td><TextInput binding={DependentSelectComputed.names(binding, binding.state.selectedIndex)} /></td>
+                    <td><TextInput binding={binding.$(DependentSelectComputed.names)
+                                                   .$(Names.at(binding.state.selectedIndex))} /></td>
                 </tr>
                 <tr>
                     <td>Radio buttons</td>
@@ -67,7 +76,7 @@ export function DependentSelectComputedEditor({ binding }: { binding: DependentS
                         binding.state.names.map(name => (
                             <div key={name}>
                                 <label>
-                                    <RadioButtonString binding={DependentSelectComputed.selectedName(binding)} 
+                                    <RadioButtonString binding={binding.$(DependentSelectComputed.selectedName)} 
                                                        selectionValue={name} /> {name}
                                 </label>
                             </div>

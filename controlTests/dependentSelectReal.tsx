@@ -2,17 +2,26 @@ import * as React from "react";
 
 import { TextInput, SelectNumber, SelectString } from "../index";
 import * as I from "immuto";
-import { amend, property, reducer, collection, primitive, arrayOperations } from "immuto";
+import { amend, property, reducer, reference, primitive, array } from "immuto";
+
+export type Names = string[];
+
+export namespace Names {
+
+    export const empty: Names = [];
+    export const at = array(primitive<string>());
+    export const reduce = reducer(empty).action(at);
+}
 
 export interface DependentSelectReal {
-    names: string[];
+    names: Names;
     selectedIndex: number;
     selectedName: string;
 }
 
 export namespace DependentSelectReal {
 
-    export const names = collection("NAMES", primitive<string>(), arrayOperations<string>(), (s: DependentSelectReal) => s.names,
+    export const names = reference("NAMES", Names.reduce, (s: DependentSelectReal) => s.names,
         (s, names) => amend(s, { names, selectedName: names[s.selectedIndex] || "" }));
 
     export const selectedIndex = property("SELECTED_INDEX", (s: DependentSelectReal) => s.selectedIndex,
@@ -40,10 +49,10 @@ export namespace DependentSelectReal {
     export type Cursor = typeof reduce.cursorType;
 }
 
-export function DependentSelectRealEditor({ binding }: { binding: DependentSelectReal.Cursor }) {
+export function DependentSelectRealEditor({ binding: model }: { binding: DependentSelectReal.Cursor }) {
     
     const numbers: number[] = [];
-    for (var n = 0; n < binding.state.names.length; n++) {
+    for (var n = 0; n < model.state.names.length; n++) {
         numbers.push(n);
     }
 
@@ -52,15 +61,16 @@ export function DependentSelectRealEditor({ binding }: { binding: DependentSelec
             <table><tbody>
                 <tr>
                     <td>Select by index</td>
-                    <td><SelectNumber binding={DependentSelectReal.selectedIndex(binding)} options={numbers} /></td>
+                    <td><SelectNumber binding={model.$(DependentSelectReal.selectedIndex)} options={numbers} /></td>
                 </tr>
                 <tr>
                     <td>Select by name</td>
-                    <td><SelectString binding={DependentSelectReal.selectedName(binding)} options={binding.state.names} /></td>
+                    <td><SelectString binding={model.$(DependentSelectReal.selectedName)} options={model.state.names} /></td>
                 </tr>
                 <tr>
                     <td>Edit name</td>
-                    <td><TextInput binding={DependentSelectReal.names(binding, binding.state.selectedIndex)} /></td>
+                    <td><TextInput binding={model.$(DependentSelectReal.names)
+                                                 .$(Names.at(model.state.selectedIndex))} /></td>
                 </tr>                
             </tbody></table>            
         </div>
