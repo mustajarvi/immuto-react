@@ -1,5 +1,6 @@
 import { bindToStore } from "./src/bindToStore";
 import { optimize } from "./src/optimize";
+import { polymorph } from "./src/polymorph";
 
 import { CheckBox } from "./src/CheckBox";
 import { TypedRadioButton, RadioButton, RadioButtonNumber, RadioButtonString } from "./src/RadioButton";
@@ -10,6 +11,7 @@ export {
     // Helpers
     bindToStore,
     optimize,
+    polymorph,
 
     // Components
     CheckBox,
