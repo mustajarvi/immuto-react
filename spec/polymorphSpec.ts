@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 import * as I from "immuto";
 import { action, reducer, amend, array, property, replace, snapshot } from "immuto";
 
-import { polymorph, render } from "../src/Polymorph";
+import { polymorph, render } from "../src/polymorph";
 import { bindToStore } from "../src/bindToStore";
 
 import { jsdom, DocumentWithParentWindow } from "jsdom";
