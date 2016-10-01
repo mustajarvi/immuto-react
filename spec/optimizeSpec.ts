@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import { optimize } from "../src/optimize";
 
 import { jsdom, DocumentWithParentWindow } from "jsdom";
+import { propagateToGlobal } from "./propagateToGlobal";
 
 describe("optimize", () => {
 
@@ -72,15 +73,3 @@ describe("optimize", () => {
         expect(rendered).toEqual(3);
     });
 });
-
-function propagateToGlobal(doc: DocumentWithParentWindow) {
-    const proc = global as any;
-    const win = doc.defaultView;
-    proc.document = doc;
-    proc.window = win;
-
-    for (const key in Object.keys(win)) {
-        if (key in proc) continue
-        proc[key] = win[key];
-    }
-}
