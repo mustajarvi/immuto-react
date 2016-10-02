@@ -41,11 +41,16 @@ function defineWithProps<S, A, P>(
 
     const plainReducer = getReducer(reducerOrProvider);
 
-    const reducer = (state: Polymorph<S, A, P>, action: A): Polymorph<S, A, P> => 
-            amend(state.polymorphicType.reduce(state, action),
-                { polymorphicType: state.polymorphicType });
-
     const empty = stub<S, A, P>(plainReducer.empty);
+
+    const reducer = (state: Polymorph<S, A, P>, action: A): Polymorph<S, A, P> => { 
+        if (state === undefined) {
+            state = empty;
+        }
+
+        return amend(state.polymorphicType.reduce(state, action),
+                { polymorphicType: state.polymorphicType });
+    }
 
     const reduce = builder(empty, reducer).action(action("REPLACE", 
         (s: Polymorph<S, A, P>, v: Polymorph<S, A, P>) => v));
