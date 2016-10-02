@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Cursor, Reducer, ReducerOrProvider, getReducer, amend, assign } from "immuto";
+import { Cursor, ReducerBuilder, ReducerOrProvider, builder, getReducer, amend, assign } from "immuto";
 
 export type PolymorphicTypeMethods<S, A, P> = {
     reduce(state: S, action: A): S;
@@ -22,7 +22,7 @@ export type PolymorphFactory<S, A, P, D> = (init: D) => Polymorph<S, A, P>;
 
 export interface PolymorphDefinition<S, A, P> {
     empty: Polymorph<S, A, P>;
-    reduce: Reducer<Polymorph<S, A, P>, A>;
+    reduce: ReducerBuilder<Polymorph<S, A, P>, A>;
     
     derive<DS, DA>(                    
         derivedProvider: ReducerOrProvider<DS & S, DA | A>,
@@ -47,17 +47,17 @@ function defineWithProps<S, A, P>(
 
     const empty = stub<S, A, P>(plainReducer.empty);
 
-    const reduce: Reducer<Polymorph<S, A, P>, A> = assign(
-        reducer, { empty }
-    );
+    const reduce = builder(empty, reducer);
 
     function derive<DS, DA>(                    
         derivedProvider: ReducerOrProvider<DS & S, DA | A>,
         derivedRenderer: (props: P & { binding: Cursor<DS & S, DA | A> }) => JSX.Element
     ): (init: DS & S) => Polymorph<S, A, P> {
+        
         const derivedReducer = getReducer(derivedProvider);
 
         const polymorphicType: PolymorphicTypeMethods<S, A, P> = {
+
             reduce(state: S, action: A): S {
                 return wrap(derivedReducer(state as DS & S, action));
             },
