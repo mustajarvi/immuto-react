@@ -18,7 +18,26 @@ function stub<S, A, P>(emptyState: S): Polymorph<S, A, P> {
     return amend(emptyState, { polymorphicType: { reduce, render } });
 }
 
-function defineWithProps<S, A, P>(reducerOrProvider: ReducerOrProvider<S, A>) {
+export type PolymorphFactory<S, A, P, D> = (init: D) => Polymorph<S, A, P>;
+
+export interface PolymorphDefinition<S, A, P> {
+    empty: Polymorph<S, A, P>;
+    reduce: Reducer<Polymorph<S, A, P>, A>;
+    
+    derive<DS, DA>(                    
+        derivedProvider: ReducerOrProvider<DS & S, DA | A>,
+        derivedRenderer: (props: P & { binding: Cursor<DS & S, DA | A> }) => JSX.Element
+    ): PolymorphFactory<S, A, P, DS & S>;
+
+    polymorphType: Polymorph<S, A, P>;
+    cursorType: Cursor<Polymorph<S, A, P>, A>;
+
+    props<P2>(): PolymorphDefinition<S, A, P2>;
+}
+
+function defineWithProps<S, A, P>(
+    reducerOrProvider: ReducerOrProvider<S, A>
+): PolymorphDefinition<S, A, P> {
 
     const plainReducer = getReducer(reducerOrProvider);
 
@@ -60,15 +79,15 @@ function defineWithProps<S, A, P>(reducerOrProvider: ReducerOrProvider<S, A>) {
         reduce,
         derive,
         polymorphType: undefined! as Polymorph<S, A, P>,
-        cursorType: undefined! as Cursor<Polymorph<S, A, P>, A>
+        cursorType: undefined! as Cursor<Polymorph<S, A, P>, A>,
+        props<P2>() {
+            return defineWithProps<S, A, P2>(reducerOrProvider);
+        }
     };
 }
 
-export function polymorph<S, A>(reducerOrProvider: ReducerOrProvider<S, A>) {
-
-    return assign(defineWithProps<S, A, {}>(reducerOrProvider), {
-        props<P>() {
-            return defineWithProps<S, A, P>(reducerOrProvider);
-        }
-    });
+export function polymorph<S, A>(
+    reducerOrProvider: ReducerOrProvider<S, A>
+): PolymorphDefinition<S, A, {}> {
+    return defineWithProps<S, A, {}>(reducerOrProvider);
 }
