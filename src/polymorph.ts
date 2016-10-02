@@ -59,7 +59,8 @@ function defineWithProps<S, A, P>(reducerOrProvider: ReducerOrProvider<S, A>) {
         empty,
         reduce,
         derive,
-        polymorphType: undefined! as Polymorph<S, A, P>
+        polymorphType: undefined! as Polymorph<S, A, P>,
+        cursorType: undefined! as Cursor<Polymorph<S, A, P>, A>
     };
 }
 
