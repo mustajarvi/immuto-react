@@ -18,10 +18,10 @@ function stub<S, A, P>(emptyState: S): Polymorph<S, A, P> {
     return amend(emptyState, { polymorphicType: { reduce, render } });
 }
 
-export interface PolymorphFactory<S, A, P, D> {     
-    (init: D): Polymorph<S, A, P>;
-    isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<D, A, P>;
-    isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<D, A, P>, A>;
+export interface PolymorphFactory<S, A, P, DS, DA> {     
+    (init: DS): Polymorph<S, A, P>;
+    isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<DS, DA, P>;
+    isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<DS, DA, P>, DA>;
 };
 
 export interface PolymorphDefinition<S, A, P> {
@@ -31,7 +31,7 @@ export interface PolymorphDefinition<S, A, P> {
     derive<DS, DA>(
         derivedProvider: ReducerOrProvider<DS & S, DA | A>,
         derivedRenderer: (props: P & { binding: Cursor<DS & S, DA | A> }) => JSX.Element
-    ): PolymorphFactory<S, A, P, DS & S>;
+    ): PolymorphFactory<S, A, P, DS & S, DA | A>;
 
     polymorphType: Polymorph<S, A, P>;
     cursorType: Cursor<Polymorph<S, A, P>, A | Replace<Polymorph<S, A, P>>>;
@@ -62,7 +62,7 @@ function defineWithProps<S, A, P>(
     function derive<DS, DA>(                    
         derivedProvider: ReducerOrProvider<DS & S, DA | A>,
         derivedRenderer: (props: P & { binding: Cursor<DS & S, DA | A> }) => JSX.Element
-    ): PolymorphFactory<S, A, P, DS & S> {
+    ): PolymorphFactory<S, A, P, DS & S, DA | DA> {
         
         const derivedReducer = getReducer(derivedProvider);
 
@@ -81,11 +81,11 @@ function defineWithProps<S, A, P>(
             return amend(state, { polymorphicType });
         }
 
-        function isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<DS & S, A, P> {            
+        function isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<DS & S, DA | A, P> {            
             return possibleInstance.polymorphicType as any === polymorphicType;
         }
 
-        function isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<DS & S, A, P>, A> {
+        function isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<DS & S, DA | A, P>, DA | A> {
             return possibleCursor.state.polymorphicType as any === polymorphicType;
         }
 

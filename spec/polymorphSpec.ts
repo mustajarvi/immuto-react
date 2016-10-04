@@ -296,6 +296,10 @@ describe("Polymorph", () => {
 
         expect(PolyBook.isInstance(prod1)).toEqual(true);
 
+        if (PolyBook.isInstance(prod1)) {
+            expect(prod1.title).toEqual("Frogs");
+        }
+
         // Unrelated polymorphic type
         const PolyRubbish = polymorph(primitive<{ rubbish: string }>()).props<PolyProductProps>();
         type PolyRubbish = typeof PolyRubbish.polymorphType;
@@ -304,8 +308,31 @@ describe("Polymorph", () => {
             primitive<{ rubbish: string }>(), props => React.createElement("div"));
 
         const rubbish = DerivedRubbish({ rubbish: "rubbish" });
+        expect(PolyBook.isInstance(rubbish)).toEqual(false);
 
-        expect(PolyBook.isInstance(rubbish)).toEqual(false);        
+        const store = PolyProduct.reduce.store();
+        expect(PolyBook.isCursor(snapshot(store))).toEqual(false);
+        
+        store.dispatch(replace(book1));
+
+        var cursor1 = snapshot(store);
+        expect(PolyBook.isCursor(cursor1)).toEqual(true);
+
+        if (PolyBook.isCursor(cursor1)) {
+            expect(cursor1.state.title).toEqual("Frogs");
+
+            cursor1.$(Book.title)(replace("Fish"));
+
+            var cursor2 = snapshot(store);
+            expect(PolyBook.isCursor(cursor2)).toEqual(true);
+            if (PolyBook.isCursor(cursor2)) {
+                expect(cursor2.state.title).toEqual("Fish");
+            }
+        }
+
+        if (DerivedRubbish.isCursor(cursor1)) {
+            expect(cursor1.state.rubbish).toEqual("Should never get here");
+        }
     });
 });
 
