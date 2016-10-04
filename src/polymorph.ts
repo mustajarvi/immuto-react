@@ -20,8 +20,8 @@ function stub<S, A, P>(emptyState: S): Polymorph<S, A, P> {
 
 export interface PolymorphFactory<S, A, P, D> {     
     (init: D): Polymorph<S, A, P>;
-    from<S2, A2>(possibleInstance: Polymorph<S2, A2, P>): Polymorph<D, A, P> | undefined;
-    fromCursor<S2, A2>(possibleCursor: Cursor<Polymorph<S2, A2, P>, A2>): Cursor<Polymorph<D, A, P>, A> | undefined;
+    isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<D, A, P>;
+    isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<D, A, P>, A>;
 };
 
 export interface PolymorphDefinition<S, A, P> {
@@ -81,19 +81,15 @@ function defineWithProps<S, A, P>(
             return amend(state, { polymorphicType });
         }
 
-        function from<S2, A2>(possibleInstance: Polymorph<S2, A2, P>) {
-            const asserted = possibleInstance as any as Polymorph<DS & S, A, P>;
-            return asserted.polymorphicType === polymorphicType 
-                ? asserted : undefined;
+        function isInstance(possibleInstance: Polymorph<any, any, P>): possibleInstance is Polymorph<DS & S, A, P> {            
+            return possibleInstance.polymorphicType as any === polymorphicType;
         }
 
-        function fromCursor<S2, A2>(possibleCursor: Cursor<Polymorph<S2, A2, P>, A2>) {
-            const asserted = possibleCursor as any as Cursor<Polymorph<DS & S, A, P>, A>;
-            return asserted.state.polymorphicType === polymorphicType 
-                ? asserted : undefined;
+        function isCursor(possibleCursor: Cursor<Polymorph<any, any, P>, any>): possibleCursor is Cursor<Polymorph<DS & S, A, P>, A> {
+            return possibleCursor.state.polymorphicType as any === polymorphicType;
         }
 
-        return assign(wrap, { from, fromCursor });
+        return assign(wrap, { isInstance, isCursor });
     }
 
     return {

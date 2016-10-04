@@ -294,8 +294,7 @@ describe("Polymorph", () => {
         // A book is-a product
         const prod1: PolyProduct = book1;
 
-        const book2 = PolyBook.from(prod1);
-        expect(book2).toEqual(book1);
+        expect(PolyBook.isInstance(prod1)).toEqual(true);
 
         // Unrelated polymorphic type
         const PolyRubbish = polymorph(primitive<{ rubbish: string }>()).props<PolyProductProps>();
@@ -306,8 +305,7 @@ describe("Polymorph", () => {
 
         const rubbish = DerivedRubbish({ rubbish: "rubbish" });
 
-        const book3 = PolyBook.from(rubbish);
-        expect(book3).toEqual(undefined);        
+        expect(PolyBook.isInstance(rubbish)).toEqual(false);        
     });
 });
 
