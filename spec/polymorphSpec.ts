@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import * as I from "immuto";
-import { action, reducer, amend, array, property, replace, snapshot } from "immuto";
+import { action, reducer, amend, array, property, replace, snapshot, primitive } from "immuto";
 
 import { polymorph, render } from "../src/polymorph";
 import { bindToStore } from "../src/bindToStore";
@@ -281,6 +281,33 @@ describe("Polymorph", () => {
 
         const food2 = prods.getState()[1] as any as Food;
         expect(food2.flavour).toEqual("savoury");        
+    });
+
+    it("supports safe downcasting", () => {
+
+        const book1 = PolyBook({
+            title: "Frogs",
+            price: 2.99,
+            authors: []
+        });
+
+        // A book is-a product
+        const prod1: PolyProduct = book1;
+
+        const book2 = PolyBook.from(prod1);
+        expect(book2).toEqual(book1);
+
+        // Unrelated polymorphic type
+        const PolyRubbish = polymorph(primitive<{ rubbish: string }>()).props<PolyProductProps>();
+        type PolyRubbish = typeof PolyRubbish.polymorphType;
+
+        const DerivedRubbish = PolyRubbish.derive(
+            primitive<{ rubbish: string }>(), props => React.createElement("div"));
+
+        const rubbish = DerivedRubbish({ rubbish: "rubbish" });
+
+        const book3 = PolyBook.from(rubbish);
+        expect(book3).toEqual(undefined);        
     });
 });
 

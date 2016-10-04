@@ -18,7 +18,11 @@ function stub<S, A, P>(emptyState: S): Polymorph<S, A, P> {
     return amend(emptyState, { polymorphicType: { reduce, render } });
 }
 
-export type PolymorphFactory<S, A, P, D> = (init: D) => Polymorph<S, A, P>;
+export interface PolymorphFactory<S, A, P, D> {     
+    (init: D): Polymorph<S, A, P>;
+    from<S2, A2>(possibleInstance: Polymorph<S2, A2, P>): Polymorph<D, A, P> | undefined;
+    fromCursor<S2, A2>(possibleCursor: Cursor<Polymorph<S2, A2, P>, A2>): Cursor<Polymorph<D, A, P>, A> | undefined;
+};
 
 export interface PolymorphDefinition<S, A, P> {
     empty: Polymorph<S, A, P>;
@@ -58,7 +62,7 @@ function defineWithProps<S, A, P>(
     function derive<DS, DA>(                    
         derivedProvider: ReducerOrProvider<DS & S, DA | A>,
         derivedRenderer: (props: P & { binding: Cursor<DS & S, DA | A> }) => JSX.Element
-    ): (init: DS & S) => Polymorph<S, A, P> {
+    ): PolymorphFactory<S, A, P, DS & S> {
         
         const derivedReducer = getReducer(derivedProvider);
 
@@ -77,7 +81,19 @@ function defineWithProps<S, A, P>(
             return amend(state, { polymorphicType });
         }
 
-        return wrap;                        
+        function from<S2, A2>(possibleInstance: Polymorph<S2, A2, P>) {
+            const asserted = possibleInstance as any as Polymorph<DS & S, A, P>;
+            return asserted.polymorphicType === polymorphicType 
+                ? asserted : undefined;
+        }
+
+        function fromCursor<S2, A2>(possibleCursor: Cursor<Polymorph<S2, A2, P>, A2>) {
+            const asserted = possibleCursor as any as Cursor<Polymorph<DS & S, A, P>, A>;
+            return asserted.state.polymorphicType === polymorphicType 
+                ? asserted : undefined;
+        }
+
+        return assign(wrap, { from, fromCursor });
     }
 
     return {
