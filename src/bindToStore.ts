@@ -36,7 +36,12 @@ export function bindToStore<S, A>(
         }
 
         render() {
-            return this.state.cursor ? render(this.state.cursor) : null;
+            if (!this.state.cursor) {
+                // won't really happen
+                throw new Error('Cursor is undefined.');
+            }
+
+            return render(this.state.cursor);
         }
     }
 }
